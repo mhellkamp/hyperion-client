@@ -1,46 +1,59 @@
 package com.dottydingo.hyperion.client.builder;
 
 import com.dottydingo.hyperion.api.ApiObject;
-import com.dottydingo.hyperion.api.DeleteResponse;
-import com.dottydingo.hyperion.client.HyperionClient;
-import com.dottydingo.hyperion.client.MultiMap;
-import com.dottydingo.hyperion.client.request.DeleteRequest;
+import com.dottydingo.hyperion.client.HeaderFactory;
+import com.dottydingo.hyperion.client.ParameterFactory;
+import com.dottydingo.hyperion.client.Request;
+import com.dottydingo.hyperion.client.RequestMethod;
 
 import java.io.Serializable;
-import java.util.Arrays;
 
 /**
  */
-public class DeleteRequestBuilder<T extends ApiObject<ID>,ID extends Serializable> extends IdRequestBuilder<T,ID,DeleteRequest<T>>
+public class DeleteRequestBuilder<T extends ApiObject<ID>,ID extends Serializable> extends RequestBuilder<T,ID>
 {
+    private ID[] ids;
 
-    public DeleteRequestBuilder(Class<T> objectType)
+    public DeleteRequestBuilder(int version, Class<T> objectType, ID[] ids)
     {
-        super(objectType);
+        super(version, objectType);
+        this.ids = ids;
     }
 
     @Override
-    public DeleteRequest<T> build()
+    public DeleteRequestBuilder<T, ID> addParameter(String name, String value)
     {
-        MultiMap headers = resolveHeaders();
-        MultiMap parameters = resolveParameters();
-
-        if(version != null)
-            parameters.add("version",version.toString());
-
-        DeleteRequest<T> request = new DeleteRequest<T>();
-        request.setEntityType(objectType);
-        request.setHeaders(headers);
-        request.setParameters(parameters);
-
-        if(ids.length > 0)
-            request.setIds(Arrays.asList(ids));
-
-        return request;
+        super.addParameter(name, value);
+        return this;
     }
 
-    public int execute(HyperionClient client)
+    @Override
+    public DeleteRequestBuilder<T, ID> addHeader(String name, String value)
     {
-        return client.delete(this.build());
+        super.addHeader(name, value);
+        return this;
+    }
+
+    @Override
+    public DeleteRequestBuilder<T, ID> withHeaderFactory(HeaderFactory headerFactory)
+    {
+        super.withHeaderFactory(headerFactory);
+        return this;
+    }
+
+    @Override
+    public DeleteRequestBuilder<T, ID> withParameterFactory(ParameterFactory parameterFactory)
+    {
+        super.withParameterFactory(parameterFactory);
+        return this;
+    }
+
+    @Override
+    public Request<T> build()
+    {
+        Request<T> request = super.build();
+        request.setRequestMethod(RequestMethod.DELETE);
+        request.setPath(join(ids));
+        return request;
     }
 }

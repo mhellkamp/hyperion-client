@@ -1,51 +1,65 @@
 package com.dottydingo.hyperion.client.builder;
 
 import com.dottydingo.hyperion.api.ApiObject;
-import com.dottydingo.hyperion.client.MultiMap;
-import com.dottydingo.hyperion.client.request.GetRequest;
+import com.dottydingo.hyperion.client.HeaderFactory;
+import com.dottydingo.hyperion.client.ParameterFactory;
+import com.dottydingo.hyperion.client.Request;
+import com.dottydingo.hyperion.client.RequestMethod;
 
 import java.io.Serializable;
-import java.util.Arrays;
 
 /**
  */
-public class GetRequestBuilder<T extends ApiObject<ID>,ID extends Serializable> extends IdRequestBuilder<T,ID,GetRequest<T>>
+public class GetRequestBuilder<T extends ApiObject<ID>,ID extends Serializable> extends RequestBuilder<T,ID>
 {
-    private String[] fields;
+    private ID[] ids;
 
-    public GetRequestBuilder(Class<T> objectType)
+    public GetRequestBuilder(int version, Class<T> objectType, ID[] ids)
     {
-        super(objectType);
+        super(version, objectType);
+        this.ids = ids;
     }
 
-    public GetRequestBuilder<T,ID> forFields(String... fields)
+    public GetRequestBuilder<T, ID> returnFields(String... fields)
     {
-        this.fields = fields;
+        addParameter("fields",join(fields));
         return this;
     }
 
     @Override
-    public GetRequest<T> build()
+    public GetRequestBuilder<T, ID> addParameter(String name, String value)
     {
-        MultiMap headers = resolveHeaders();
-        MultiMap parameters = resolveParameters();
-
-        if(version != null)
-            parameters.add("version",version.toString());
-
-        if(fields != null && fields.length > 0)
-            parameters.add("fields",join(fields));
-
-        GetRequest<T> request = new GetRequest<T>();
-        request.setEntityType(objectType);
-        request.setHeaders(headers);
-        request.setParameters(parameters);
-
-        if(ids.length > 0)
-            request.setIds(Arrays.asList(ids));
-
-        return request;
+        super.addParameter(name, value);
+        return this;
     }
 
+    @Override
+    public GetRequestBuilder<T, ID> addHeader(String name, String value)
+    {
+        super.addHeader(name, value);
+        return this;
+    }
 
+    @Override
+    public GetRequestBuilder<T, ID> withHeaderFactory(HeaderFactory headerFactory)
+    {
+        super.withHeaderFactory(headerFactory);
+        return this;
+    }
+
+    @Override
+    public GetRequestBuilder<T, ID> withParameterFactory(ParameterFactory parameterFactory)
+    {
+        super.withParameterFactory(parameterFactory);
+        return this;
+    }
+
+    @Override
+    public Request<T> build()
+    {
+        Request<T> request = super.build();
+        request.setPath(join(ids));
+        request.setRequestMethod(RequestMethod.GET);
+        return request;
+    }
 }

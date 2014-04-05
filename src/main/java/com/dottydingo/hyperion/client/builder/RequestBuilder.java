@@ -4,53 +4,66 @@ import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.client.HeaderFactory;
 import com.dottydingo.hyperion.client.MultiMap;
 import com.dottydingo.hyperion.client.ParameterFactory;
-import com.dottydingo.hyperion.client.request.AbstractRequest;
+import com.dottydingo.hyperion.client.Request;
+
+
+import java.io.Serializable;
 
 /**
  */
-public abstract class AbstractRequestBuilder<T extends ApiObject,R extends AbstractRequest<T>>
+public abstract class RequestBuilder<T extends ApiObject<ID>,ID extends Serializable>
 {
     private MultiMap headers = new MultiMap();
     private MultiMap parameters = new MultiMap();
     private HeaderFactory headerFactory;
     private ParameterFactory parameterFactory;
-    protected Integer version;
+    protected int version;
     protected Class<T> objectType;
 
-    protected AbstractRequestBuilder(Class<T> objectType)
+    protected RequestBuilder(int version, Class<T> objectType)
     {
+        this.version = version;
         this.objectType = objectType;
     }
 
-    public void setHeaderFactory(HeaderFactory headerFactory)
+    public RequestBuilder<T,ID> addParameter(String name,String value)
+    {
+        parameters.add(name, value);
+        return this;
+    }
+
+    public RequestBuilder<T,ID> addHeader(String name,String value)
+    {
+        headers.add(name, value);
+        return this;
+    }
+
+    public RequestBuilder<T,ID> withHeaderFactory(HeaderFactory headerFactory)
     {
         this.headerFactory = headerFactory;
+        return this;
     }
 
-    public void setParameterFactory(ParameterFactory parameterFactory)
+    public RequestBuilder<T,ID> withParameterFactory(ParameterFactory parameterFactory)
     {
         this.parameterFactory = parameterFactory;
-    }
-
-    public AbstractRequestBuilder<T,R> forVersion(int version)
-    {
-        this.version = version;
         return this;
     }
 
-    public AbstractRequestBuilder<T,R> addParameter(String name,String value)
+    public Request<T> build()
     {
-        parameters.add(name,value);
-        return this;
-    }
+        MultiMap headers = resolveHeaders();
+        MultiMap parameters = resolveParameters();
 
-    public AbstractRequestBuilder<T,R> addHeader(String name,String value)
-    {
-        headers.add(name,value);
-        return this;
-    }
+        parameters.add("version",Integer.toString(version));
 
-    public abstract R build();
+        Request<T> request = new Request<T>();
+        request.setEntityType(objectType);
+        request.setHeaders(headers);
+        request.setParameters(parameters);
+
+        return request;
+    }
 
     protected MultiMap resolveHeaders()
     {
@@ -80,7 +93,7 @@ public abstract class AbstractRequestBuilder<T extends ApiObject,R extends Abstr
         return resolved;
     }
 
-    protected String join(String[] values)
+    protected String join(Object[] values)
     {
         StringBuilder sb = new StringBuilder(100);
 

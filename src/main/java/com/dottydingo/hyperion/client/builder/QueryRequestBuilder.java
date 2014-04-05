@@ -1,85 +1,86 @@
 package com.dottydingo.hyperion.client.builder;
 
 import com.dottydingo.hyperion.api.ApiObject;
-import com.dottydingo.hyperion.client.MultiMap;
-import com.dottydingo.hyperion.client.request.QueryRequest;
+import com.dottydingo.hyperion.client.HeaderFactory;
+import com.dottydingo.hyperion.client.ParameterFactory;
+import com.dottydingo.hyperion.client.Request;
+import com.dottydingo.hyperion.client.RequestMethod;
 
 import java.io.Serializable;
 
 /**
  */
-public class QueryRequestBuilder<T extends ApiObject<? extends Serializable>> extends AbstractRequestBuilder<T,QueryRequest<T>>
+public class QueryRequestBuilder<T extends ApiObject<ID>,ID extends Serializable> extends RequestBuilder<T,ID>
 {
-    private Long start;
-    private Long limit;
-    private String query;
-    private String[] fields;
-    private String[] sorts;
 
-    public QueryRequestBuilder(Class<T> objectType)
+    public QueryRequestBuilder(int version, Class<T> objectType)
     {
-        super(objectType);
+        super(version, objectType);
     }
 
-    public QueryRequestBuilder<T> start(long start)
+    public QueryRequestBuilder<T, ID> returnFields(String... fields)
     {
-        this.start = start;
+        addParameter("fields",join(fields));
         return this;
     }
 
-    public QueryRequestBuilder<T> limit(long limit)
+    public QueryRequestBuilder<T, ID> start(long start)
     {
-        this.limit = limit;
+        addParameter("start",Long.toString(start));
         return this;
     }
 
-    public QueryRequestBuilder<T> withQuery(String query)
+    public QueryRequestBuilder<T, ID> limit(long limit)
     {
-        this.query = query;
+        addParameter("start",Long.toString(limit));
         return this;
     }
 
-    public QueryRequestBuilder<T> forFields(String... fields)
+    public QueryRequestBuilder<T, ID> withQuery(String query)
     {
-        this.fields = fields;
+        addParameter("query",query);
         return this;
     }
 
-    public QueryRequestBuilder<T> withSorts(String... sorts)
+    public QueryRequestBuilder<T, ID> withSorts(String... sorts)
     {
-        this.sorts = sorts;
+        addParameter("sort",join(sorts));
         return this;
     }
 
     @Override
-    public QueryRequest<T> build()
+    public QueryRequestBuilder<T, ID> addParameter(String name, String value)
     {
-        MultiMap headers = resolveHeaders();
-        MultiMap parameters = resolveParameters();
-
-        if(version != null)
-            parameters.add("version",version.toString());
-
-        if(start != null)
-            parameters.add("start",start.toString());
-
-        if(limit != null)
-            parameters.add("limit",limit.toString());
-
-        if(fields != null && fields.length > 0)
-            parameters.add("fields",join(fields));
-
-        if(sorts != null && sorts.length > 0)
-            parameters.add("sort",join(sorts));
-
-        if(query != null && query.length() > 0)
-            parameters.add("query",query);
-
-        QueryRequest<T> request = new QueryRequest<T>();
-        request.setEntityType(objectType);
-        request.setHeaders(headers);
-        request.setParameters(parameters);
-        return request;
+        super.addParameter(name, value);
+        return this;
     }
 
+    @Override
+    public QueryRequestBuilder<T, ID> addHeader(String name, String value)
+    {
+        super.addHeader(name, value);
+        return this;
+    }
+
+    @Override
+    public QueryRequestBuilder<T, ID> withHeaderFactory(HeaderFactory headerFactory)
+    {
+        super.withHeaderFactory(headerFactory);
+        return this;
+    }
+
+    @Override
+    public QueryRequestBuilder<T, ID> withParameterFactory(ParameterFactory parameterFactory)
+    {
+        super.withParameterFactory(parameterFactory);
+        return this;
+    }
+
+    @Override
+    public Request<T> build()
+    {
+        Request<T> request = super.build();
+        request.setRequestMethod(RequestMethod.GET);
+        return request;
+    }
 }

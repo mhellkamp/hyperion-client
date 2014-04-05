@@ -1,57 +1,66 @@
 package com.dottydingo.hyperion.client.builder;
 
 import com.dottydingo.hyperion.api.ApiObject;
-import com.dottydingo.hyperion.client.MultiMap;
-import com.dottydingo.hyperion.client.request.UpdateRequest;
+import com.dottydingo.hyperion.client.HeaderFactory;
+import com.dottydingo.hyperion.client.ParameterFactory;
+import com.dottydingo.hyperion.client.Request;
+import com.dottydingo.hyperion.client.RequestMethod;
 
 import java.io.Serializable;
 
 /**
  */
-public class UpdateRequestBuilder<T extends ApiObject<ID>,ID extends Serializable> extends AbstractRequestBuilder<T,UpdateRequest<T>>
+public class UpdateRequestBuilder<T extends ApiObject<ID>,ID extends Serializable> extends RequestBuilder<T,ID>
 {
-    private String[] fields;
-    private T update;
+    private T body;
 
-    public UpdateRequestBuilder(Class<T> objectType)
+    public UpdateRequestBuilder(int version, Class<T> objectType, T body)
     {
-        super(objectType);
+        super(version, objectType);
+        this.body = body;
     }
 
-    public UpdateRequestBuilder<T,ID> forFields(String... fields)
+    public UpdateRequestBuilder<T, ID> returnFields(String... fields)
     {
-        this.fields = fields;
-        return this;
-    }
-
-    public UpdateRequestBuilder<T,ID> update(T item)
-    {
-        this.update = item;
+        addParameter("fields",join(fields));
         return this;
     }
 
     @Override
-    public UpdateRequest<T> build()
+    public UpdateRequestBuilder<T, ID> addParameter(String name, String value)
     {
-        MultiMap headers = resolveHeaders();
-        MultiMap parameters = resolveParameters();
-
-        if(version != null)
-            parameters.add("version",version.toString());
-
-        if(fields != null && fields.length > 0)
-            parameters.add("fields",join(fields));
-
-        UpdateRequest<T> request = new UpdateRequest<T>();
-        request.setEntityType(objectType);
-        request.setHeaders(headers);
-        request.setParameters(parameters);
-
-        request.setId(update.getId());
-        request.setBody(update);
-
-        return request;
+        super.addParameter(name, value);
+        return this;
     }
 
+    @Override
+    public UpdateRequestBuilder<T, ID> addHeader(String name, String value)
+    {
+        super.addHeader(name, value);
+        return this;
+    }
 
+    @Override
+    public UpdateRequestBuilder<T, ID> withHeaderFactory(HeaderFactory headerFactory)
+    {
+        super.withHeaderFactory(headerFactory);
+        return this;
+    }
+
+    @Override
+    public UpdateRequestBuilder<T, ID> withParameterFactory(ParameterFactory parameterFactory)
+    {
+        super.withParameterFactory(parameterFactory);
+        return this;
+    }
+
+    @Override
+    public Request<T> build()
+    {
+        Request<T> request = super.build();
+        request.setRequestBody(body);
+        request.setRequestMethod(RequestMethod.POST);
+        request.setPath(body.getId().toString());
+        return request;
+    }
 }
