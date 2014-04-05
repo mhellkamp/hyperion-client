@@ -214,6 +214,10 @@ public class HyperionClient
 
     }
 
+    protected boolean hasEntries(MultiMap map)
+    {
+        return map != null && !map.isEmpty();
+    }
     protected String buildUrl(Request request)
     {
         StringBuilder sb = new StringBuilder(512);
@@ -238,10 +242,18 @@ public class HyperionClient
             resolvedParameters = parameterFactory.getParameters();
         }
 
-        if(resolvedParameters != null)
+        if(hasEntries(resolvedParameters))
             resolvedParameters = resolvedParameters.merge(request.getParameters());
         else
             resolvedParameters = request.getParameters();
+
+        if(authorizationFactory != null)
+        {
+            MultiMap authEntries = authorizationFactory.getParameters();
+            if(hasEntries(authEntries))
+                resolvedParameters = resolvedParameters.merge(authEntries);
+        }
+
 
         int ct = 0;
         StringBuilder sb = new StringBuilder(512);
@@ -264,10 +276,18 @@ public class HyperionClient
         if(headerFactory != null)
             resolvedHeaders = headerFactory.getHeaders();
 
-        if(resolvedHeaders != null)
+        if(hasEntries(resolvedHeaders))
             resolvedHeaders = resolvedHeaders.merge(request.getHeaders());
         else
             resolvedHeaders = request.getHeaders();
+
+        if(authorizationFactory != null)
+        {
+            MultiMap authEntries = authorizationFactory.getHeaders();
+            if(hasEntries(authEntries))
+                resolvedHeaders = resolvedHeaders.merge(authEntries);
+        }
+
 
         for (Map.Entry<String, List<String>> entry : resolvedHeaders.entries())
         {

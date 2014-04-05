@@ -64,6 +64,11 @@ public class MultiMap
         return result;
     }
 
+    public boolean isEmpty()
+    {
+        return map.isEmpty();
+    }
+
     private class CaseInsensitiveComparator implements Comparator<String>
     {
         @Override
