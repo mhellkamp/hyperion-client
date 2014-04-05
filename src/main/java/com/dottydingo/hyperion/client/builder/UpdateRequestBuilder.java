@@ -1,10 +1,8 @@
 package com.dottydingo.hyperion.client.builder;
 
 import com.dottydingo.hyperion.api.ApiObject;
-import com.dottydingo.hyperion.client.HeaderFactory;
-import com.dottydingo.hyperion.client.ParameterFactory;
-import com.dottydingo.hyperion.client.Request;
-import com.dottydingo.hyperion.client.RequestMethod;
+import com.dottydingo.hyperion.client.*;
+import com.dottydingo.hyperion.client.exception.ClientException;
 
 import java.io.Serializable;
 
@@ -14,9 +12,12 @@ public class UpdateRequestBuilder<T extends ApiObject<ID>,ID extends Serializabl
 {
     private T body;
 
-    public UpdateRequestBuilder(int version, Class<T> objectType, T body)
+    public UpdateRequestBuilder(int version, Class<T> objectType, String entityName, T body)
     {
-        super(version, objectType);
+        super(version, objectType, entityName);
+        if(body.getId() == null)
+            throw new ClientException("The ID field can not be null.");
+
         this.body = body;
     }
 
@@ -59,8 +60,13 @@ public class UpdateRequestBuilder<T extends ApiObject<ID>,ID extends Serializabl
     {
         Request<T> request = super.build();
         request.setRequestBody(body);
-        request.setRequestMethod(RequestMethod.POST);
+        request.setRequestMethod(RequestMethod.PUT);
         request.setPath(body.getId().toString());
         return request;
+    }
+
+    public T execute(HyperionClient client)
+    {
+        return client.update(build());
     }
 }

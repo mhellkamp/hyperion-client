@@ -1,10 +1,8 @@
 package com.dottydingo.hyperion.client.builder;
 
 import com.dottydingo.hyperion.api.ApiObject;
-import com.dottydingo.hyperion.client.HeaderFactory;
-import com.dottydingo.hyperion.client.ParameterFactory;
-import com.dottydingo.hyperion.client.Request;
-import com.dottydingo.hyperion.client.RequestMethod;
+import com.dottydingo.hyperion.api.EntityResponse;
+import com.dottydingo.hyperion.client.*;
 
 import java.io.Serializable;
 
@@ -14,9 +12,9 @@ public class GetRequestBuilder<T extends ApiObject<ID>,ID extends Serializable> 
 {
     private ID[] ids;
 
-    public GetRequestBuilder(int version, Class<T> objectType, ID[] ids)
+    public GetRequestBuilder(int version, Class<T> objectType, String entityName, ID[] ids)
     {
-        super(version, objectType);
+        super(version, objectType, entityName);
         this.ids = ids;
     }
 
@@ -61,5 +59,10 @@ public class GetRequestBuilder<T extends ApiObject<ID>,ID extends Serializable> 
         request.setPath(join(ids));
         request.setRequestMethod(RequestMethod.GET);
         return request;
+    }
+
+    public EntityResponse<T> execute(HyperionClient client)
+    {
+        return client.get(build());
     }
 }

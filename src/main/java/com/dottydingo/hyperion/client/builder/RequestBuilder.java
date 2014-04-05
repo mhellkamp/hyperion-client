@@ -19,11 +19,13 @@ public abstract class RequestBuilder<T extends ApiObject<ID>,ID extends Serializ
     private ParameterFactory parameterFactory;
     protected int version;
     protected Class<T> objectType;
+    protected String entityName;
 
-    protected RequestBuilder(int version, Class<T> objectType)
+    protected RequestBuilder(int version, Class<T> objectType, String entityName)
     {
         this.version = version;
         this.objectType = objectType;
+        this.entityName = entityName;
     }
 
     public RequestBuilder<T,ID> addParameter(String name,String value)
@@ -58,6 +60,7 @@ public abstract class RequestBuilder<T extends ApiObject<ID>,ID extends Serializ
         parameters.add("version",Integer.toString(version));
 
         Request<T> request = new Request<T>();
+        request.setEntityName(entityName);
         request.setEntityType(objectType);
         request.setHeaders(headers);
         request.setParameters(parameters);
@@ -96,8 +99,10 @@ public abstract class RequestBuilder<T extends ApiObject<ID>,ID extends Serializ
     protected String join(Object[] values)
     {
         StringBuilder sb = new StringBuilder(100);
+        if(values.length == 0)
+            return sb.toString();
 
-        sb.append(values.length);
+        sb.append(values[0]);
 
         if(values.length == 1)
             return sb.toString();

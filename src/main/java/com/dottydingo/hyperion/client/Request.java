@@ -9,6 +9,7 @@ public class Request<T extends ApiObject>
     private MultiMap headers = new MultiMap();
     private MultiMap parameters = new MultiMap();
     private Class<T> entityType;
+    private String entityName;
     private RequestMethod requestMethod;
     private String path;
     private T requestBody;
@@ -51,6 +52,16 @@ public class Request<T extends ApiObject>
     public void setEntityType(Class<T> entityType)
     {
         this.entityType = entityType;
+    }
+
+    public String getEntityName()
+    {
+        return entityName;
+    }
+
+    public void setEntityName(String entityName)
+    {
+        this.entityName = entityName;
     }
 
     public String getPath()

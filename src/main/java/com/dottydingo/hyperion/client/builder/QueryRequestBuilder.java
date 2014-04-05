@@ -1,10 +1,8 @@
 package com.dottydingo.hyperion.client.builder;
 
 import com.dottydingo.hyperion.api.ApiObject;
-import com.dottydingo.hyperion.client.HeaderFactory;
-import com.dottydingo.hyperion.client.ParameterFactory;
-import com.dottydingo.hyperion.client.Request;
-import com.dottydingo.hyperion.client.RequestMethod;
+import com.dottydingo.hyperion.api.EntityResponse;
+import com.dottydingo.hyperion.client.*;
 
 import java.io.Serializable;
 
@@ -13,9 +11,9 @@ import java.io.Serializable;
 public class QueryRequestBuilder<T extends ApiObject<ID>,ID extends Serializable> extends RequestBuilder<T,ID>
 {
 
-    public QueryRequestBuilder(int version, Class<T> objectType)
+    public QueryRequestBuilder(int version, Class<T> objectType, String entityName)
     {
-        super(version, objectType);
+        super(version, objectType, entityName);
     }
 
     public QueryRequestBuilder<T, ID> returnFields(String... fields)
@@ -32,7 +30,7 @@ public class QueryRequestBuilder<T extends ApiObject<ID>,ID extends Serializable
 
     public QueryRequestBuilder<T, ID> limit(long limit)
     {
-        addParameter("start",Long.toString(limit));
+        addParameter("limit",Long.toString(limit));
         return this;
     }
 
@@ -82,5 +80,10 @@ public class QueryRequestBuilder<T extends ApiObject<ID>,ID extends Serializable
         Request<T> request = super.build();
         request.setRequestMethod(RequestMethod.GET);
         return request;
+    }
+
+    public EntityResponse<T> execute(HyperionClient client)
+    {
+        return client.query(build());
     }
 }

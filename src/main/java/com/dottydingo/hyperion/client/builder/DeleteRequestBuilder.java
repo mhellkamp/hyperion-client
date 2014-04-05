@@ -1,10 +1,7 @@
 package com.dottydingo.hyperion.client.builder;
 
 import com.dottydingo.hyperion.api.ApiObject;
-import com.dottydingo.hyperion.client.HeaderFactory;
-import com.dottydingo.hyperion.client.ParameterFactory;
-import com.dottydingo.hyperion.client.Request;
-import com.dottydingo.hyperion.client.RequestMethod;
+import com.dottydingo.hyperion.client.*;
 
 import java.io.Serializable;
 
@@ -14,9 +11,9 @@ public class DeleteRequestBuilder<T extends ApiObject<ID>,ID extends Serializabl
 {
     private ID[] ids;
 
-    public DeleteRequestBuilder(int version, Class<T> objectType, ID[] ids)
+    public DeleteRequestBuilder(int version, Class<T> objectType, String entityName, ID[] ids)
     {
-        super(version, objectType);
+        super(version, objectType, entityName);
         this.ids = ids;
     }
 
@@ -55,5 +52,10 @@ public class DeleteRequestBuilder<T extends ApiObject<ID>,ID extends Serializabl
         request.setRequestMethod(RequestMethod.DELETE);
         request.setPath(join(ids));
         return request;
+    }
+
+    public int execute(HyperionClient client)
+    {
+        return client.delete(build());
     }
 }

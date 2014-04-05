@@ -217,8 +217,9 @@ public class HyperionClient
     protected String buildUrl(Request request)
     {
         StringBuilder sb = new StringBuilder(512);
-        sb.append(baseUrl).append("/").append(request.getEntityType().getSimpleName()).append("/");
-        sb.append(request.getPath());
+        sb.append(baseUrl).append("/").append(request.getEntityName()).append("/");
+        if(request.getPath() != null)
+            sb.append(request.getPath());
 
         String queryString = buildQueryString(request);
         if(queryString.length()>0)
@@ -246,10 +247,10 @@ public class HyperionClient
         StringBuilder sb = new StringBuilder(512);
         for (Map.Entry<String, List<String>> entry : resolvedParameters.entries())
         {
-            if(ct++ > 0)
-                sb.append("&");
             for (String value : entry.getValue())
             {
+                if(ct++ > 0)
+                    sb.append("&");
                 sb.append(encode(entry.getKey())).append("=").append(encode(value));
             }
         }
