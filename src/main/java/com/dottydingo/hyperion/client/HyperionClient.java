@@ -4,6 +4,8 @@ import com.dottydingo.hyperion.api.ApiObject;
 import com.dottydingo.hyperion.api.DeleteResponse;
 import com.dottydingo.hyperion.api.EntityResponse;
 import com.dottydingo.hyperion.api.ErrorResponse;
+import com.dottydingo.hyperion.client.event.ClientEvent;
+import com.dottydingo.hyperion.client.event.ClientEventListener;
 import com.dottydingo.hyperion.client.exception.ClientConnectionException;
 import com.dottydingo.hyperion.client.exception.ClientException;
 import com.dottydingo.hyperion.client.exception.ClientMarshallingException;
@@ -35,6 +37,7 @@ public class HyperionClient
     protected ParameterFactory parameterFactory;
     protected HeaderFactory headerFactory;
     protected AuthorizationFactory authorizationFactory;
+    protected ClientEventListener clientEventListener;
 
     public HyperionClient(String baseUrl)
     {
@@ -77,38 +80,60 @@ public class HyperionClient
         this.client = client;
     }
 
+    public void setClientEventListener(ClientEventListener clientEventListener)
+    {
+        this.clientEventListener = clientEventListener;
+    }
+
     public <T extends ApiObject> EntityResponse<T> get(Request<T> request)
     {
-        HttpURLConnection connection = executeRequest(request);
-        return readResponse(connection, objectMapper.getTypeFactory()
-                            .constructParametricType(EntityResponse.class, request.getEntityType()));
+        return executeRequest(request,objectMapper.getTypeFactory()
+                .constructParametricType(EntityResponse.class, request.getEntityType()));
     }
 
     public <T extends ApiObject> EntityResponse<T> query(Request<T> request)
     {
-        HttpURLConnection connection = executeRequest(request);
-        return readResponse(connection, objectMapper.getTypeFactory()
+        return executeRequest(request, objectMapper.getTypeFactory()
                 .constructParametricType(EntityResponse.class, request.getEntityType()));
     }
 
     public int delete(Request request)
     {
-        HttpURLConnection connection = executeRequest(request);
-        DeleteResponse response = readResponse(connection, objectMapper.getTypeFactory().constructType(
+        DeleteResponse response = executeRequest(request,objectMapper.getTypeFactory().constructType(
                 DeleteResponse.class));
         return response.getCount();
     }
 
     public <T extends ApiObject> T create(Request<T> request)
     {
-        HttpURLConnection connection = executeRequest(request);
-        return readResponse(connection, objectMapper.getTypeFactory().constructType(request.getEntityType()));
+        return executeRequest(request,objectMapper.getTypeFactory().constructType(request.getEntityType()));
     }
 
     public <T extends ApiObject> T update(Request<T> request)
     {
-        HttpURLConnection connection = executeRequest(request);
-        return readResponse(connection, objectMapper.getTypeFactory().constructType(request.getEntityType()));
+        return executeRequest(request, objectMapper.getTypeFactory().constructType(request.getEntityType()));
+    }
+
+    protected <R> R executeRequest(Request request, JavaType javaType)
+    {
+        long start = System.currentTimeMillis();
+        boolean error = true;
+        try
+        {
+            HttpURLConnection connection = executeRequest(request);
+            R r = readResponse(connection, javaType);
+            error = false;
+            return r;
+        }
+        finally
+        {
+            if(clientEventListener != null)
+            {
+                ClientEvent event = new ClientEvent(baseUrl,request.getEntityName(),request.getRequestMethod(),
+                        System.currentTimeMillis() - start,error);
+                clientEventListener.handleEvent(event);
+            }
+        }
     }
 
     protected <T> T readResponse(HttpURLConnection connection,JavaType javaType)
