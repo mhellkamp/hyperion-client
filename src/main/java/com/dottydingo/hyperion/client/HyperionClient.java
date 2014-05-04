@@ -38,6 +38,7 @@ public class HyperionClient
     protected HeaderFactory headerFactory;
     protected AuthorizationFactory authorizationFactory;
     protected ClientEventListener clientEventListener;
+    protected String userAgent = "hyperionClient";
 
     public HyperionClient(String baseUrl)
     {
@@ -83,6 +84,11 @@ public class HyperionClient
     public void setClientEventListener(ClientEventListener clientEventListener)
     {
         this.clientEventListener = clientEventListener;
+    }
+
+    public void setUserAgent(String userAgent)
+    {
+        this.userAgent = userAgent;
     }
 
     public <T extends ApiObject> EntityResponse<T> get(Request<T> request)
@@ -313,6 +319,8 @@ public class HyperionClient
                 resolvedHeaders = resolvedHeaders.merge(authEntries);
         }
 
+        if(resolvedHeaders.getFirst("user-agent") == null)
+            connection.addRequestProperty("user-agent",userAgent);
 
         for (Map.Entry<String, List<String>> entry : resolvedHeaders.entries())
         {
