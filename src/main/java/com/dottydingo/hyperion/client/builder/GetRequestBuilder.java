@@ -20,7 +20,7 @@ public class GetRequestBuilder<T extends ApiObject<ID>,ID extends Serializable> 
 
     public GetRequestBuilder<T, ID> returnFields(String... fields)
     {
-        addParameter("fields",join(fields));
+        setParameter("fields",join(fields));
         return this;
     }
 
@@ -32,9 +32,23 @@ public class GetRequestBuilder<T extends ApiObject<ID>,ID extends Serializable> 
     }
 
     @Override
+    public GetRequestBuilder<T, ID> setParameter(String name, String value)
+    {
+        super.setParameter(name, value);
+        return this;
+    }
+
+    @Override
     public GetRequestBuilder<T, ID> addHeader(String name, String value)
     {
         super.addHeader(name, value);
+        return this;
+    }
+
+    @Override
+    public GetRequestBuilder<T, ID> setHeader(String name, String value)
+    {
+        super.setHeader(name, value);
         return this;
     }
 

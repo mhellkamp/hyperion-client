@@ -19,7 +19,7 @@ public class CreateRequestBuilder<T extends ApiObject<ID>,ID extends Serializabl
 
     public CreateRequestBuilder<T, ID> returnFields(String... fields)
     {
-        addParameter("fields",join(fields));
+        setParameter("fields",join(fields));
         return this;
     }
 
@@ -31,9 +31,23 @@ public class CreateRequestBuilder<T extends ApiObject<ID>,ID extends Serializabl
     }
 
     @Override
+    public CreateRequestBuilder<T, ID> setParameter(String name, String value)
+    {
+        super.setParameter(name, value);
+        return this;
+    }
+
+    @Override
     public CreateRequestBuilder<T, ID> addHeader(String name, String value)
     {
         super.addHeader(name, value);
+        return this;
+    }
+
+    @Override
+    public CreateRequestBuilder<T, ID> setHeader(String name, String value)
+    {
+        super.setHeader(name, value);
         return this;
     }
 

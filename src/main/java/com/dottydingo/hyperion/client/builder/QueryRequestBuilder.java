@@ -11,6 +11,12 @@ import java.io.Serializable;
 public class QueryRequestBuilder<T extends ApiObject<ID>,ID extends Serializable> extends RequestBuilder<T,ID>
 {
 
+    public QueryRequestBuilder(int version, Class<T> objectType, String entityName,String query)
+    {
+        this(version, objectType, entityName);
+        setParameter("query",query);
+    }
+
     public QueryRequestBuilder(int version, Class<T> objectType, String entityName)
     {
         super(version, objectType, entityName);
@@ -18,31 +24,25 @@ public class QueryRequestBuilder<T extends ApiObject<ID>,ID extends Serializable
 
     public QueryRequestBuilder<T, ID> returnFields(String... fields)
     {
-        addParameter("fields",join(fields));
+        setParameter("fields",join(fields));
         return this;
     }
 
     public QueryRequestBuilder<T, ID> start(long start)
     {
-        addParameter("start",Long.toString(start));
+        setParameter("start",Long.toString(start));
         return this;
     }
 
     public QueryRequestBuilder<T, ID> limit(long limit)
     {
-        addParameter("limit",Long.toString(limit));
-        return this;
-    }
-
-    public QueryRequestBuilder<T, ID> withQuery(String query)
-    {
-        addParameter("query",query);
+        setParameter("limit",Long.toString(limit));
         return this;
     }
 
     public QueryRequestBuilder<T, ID> withSorts(String... sorts)
     {
-        addParameter("sort",join(sorts));
+        setParameter("sort",join(sorts));
         return this;
     }
 
@@ -54,9 +54,23 @@ public class QueryRequestBuilder<T extends ApiObject<ID>,ID extends Serializable
     }
 
     @Override
+    public QueryRequestBuilder<T, ID> setParameter(String name, String value)
+    {
+        super.setParameter(name, value);
+        return this;
+    }
+
+    @Override
     public QueryRequestBuilder<T, ID> addHeader(String name, String value)
     {
         super.addHeader(name, value);
+        return this;
+    }
+
+    @Override
+    public QueryRequestBuilder<T, ID> setHeader(String name, String value)
+    {
+        super.setHeader(name, value);
         return this;
     }
 

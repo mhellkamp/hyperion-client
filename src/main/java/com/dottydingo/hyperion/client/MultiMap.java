@@ -28,6 +28,19 @@ public class MultiMap
         return vals.get(0);
     }
 
+    public void set(String key, String value)
+    {
+        if(key == null)
+            throw new IllegalArgumentException("Null keys not allowed.");
+
+        if(value == null)
+            throw new IllegalArgumentException("Null values not allowed.");
+
+        ArrayList<String> vals = new ArrayList<String>();
+        vals.add(value);
+        map.put(key,vals);
+
+    }
     public void add(String key, String value)
     {
         if(key == null)

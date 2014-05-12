@@ -25,9 +25,23 @@ public class DeleteRequestBuilder<T extends ApiObject<ID>,ID extends Serializabl
     }
 
     @Override
+    public DeleteRequestBuilder<T, ID> setParameter(String name, String value)
+    {
+        super.setParameter(name, value);
+        return this;
+    }
+
+    @Override
     public DeleteRequestBuilder<T, ID> addHeader(String name, String value)
     {
         super.addHeader(name, value);
+        return this;
+    }
+
+    @Override
+    public DeleteRequestBuilder<T, ID> setHeader(String name, String value)
+    {
+        super.setHeader(name, value);
         return this;
     }
 

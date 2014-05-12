@@ -23,7 +23,7 @@ public class UpdateRequestBuilder<T extends ApiObject<ID>,ID extends Serializabl
 
     public UpdateRequestBuilder<T, ID> returnFields(String... fields)
     {
-        addParameter("fields",join(fields));
+        setParameter("fields",join(fields));
         return this;
     }
 
@@ -35,9 +35,23 @@ public class UpdateRequestBuilder<T extends ApiObject<ID>,ID extends Serializabl
     }
 
     @Override
+    public UpdateRequestBuilder<T, ID> setParameter(String name, String value)
+    {
+        super.setParameter(name, value);
+        return this;
+    }
+
+    @Override
     public UpdateRequestBuilder<T, ID> addHeader(String name, String value)
     {
         super.addHeader(name, value);
+        return this;
+    }
+
+    @Override
+    public UpdateRequestBuilder<T, ID> setHeader(String name, String value)
+    {
+        super.setHeader(name, value);
         return this;
     }
 

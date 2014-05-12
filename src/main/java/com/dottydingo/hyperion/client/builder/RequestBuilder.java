@@ -34,7 +34,19 @@ public abstract class RequestBuilder<T extends ApiObject<ID>,ID extends Serializ
         return this;
     }
 
+    public RequestBuilder<T,ID> setParameter(String name,String value)
+    {
+        parameters.set(name, value);
+        return this;
+    }
+
     public RequestBuilder<T,ID> addHeader(String name,String value)
+    {
+        headers.add(name, value);
+        return this;
+    }
+
+    public RequestBuilder<T,ID> setHeader(String name,String value)
     {
         headers.add(name, value);
         return this;

@@ -34,6 +34,11 @@ public class RequestFactory<T extends ApiObject<ID>,ID extends Serializable>
         return new DeleteRequestBuilder<T, ID>(version,type,entityName,ids);
     }
 
+    public QueryRequestBuilder<T,ID> query(String query)
+    {
+        return new QueryRequestBuilder<T, ID>(version,type,entityName,query);
+    }
+
     public QueryRequestBuilder<T,ID> query()
     {
         return new QueryRequestBuilder<T, ID>(version,type,entityName);
