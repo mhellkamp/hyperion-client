@@ -8,6 +8,7 @@ import com.dottydingo.hyperion.client.Request;
 
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  */
@@ -122,6 +123,25 @@ public abstract class RequestBuilder<T extends ApiObject<ID>,ID extends Serializ
         for (int i = 1; i < values.length; i++)
         {
             sb.append(",").append(values[i]);
+        }
+
+        return sb.toString();
+    }
+
+    protected String join(List<String> values)
+    {
+        StringBuilder sb = new StringBuilder(100);
+        if(values.size() == 0)
+            return sb.toString();
+
+        sb.append(values.get(0));
+
+        if(values.size() == 1)
+            return sb.toString();
+
+        for (int i = 1; i < values.size(); i++)
+        {
+            sb.append(",").append(values.get(i));
         }
 
         return sb.toString();

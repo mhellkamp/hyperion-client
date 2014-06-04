@@ -5,11 +5,14 @@ import com.dottydingo.hyperion.api.EntityResponse;
 import com.dottydingo.hyperion.client.*;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  */
 public class QueryRequestBuilder<T extends ApiObject<ID>,ID extends Serializable> extends RequestBuilder<T,ID>
 {
+    private List<String> sorts = new ArrayList<String>();
 
     public QueryRequestBuilder(int version, Class<T> objectType, String entityName,String query)
     {
@@ -40,9 +43,15 @@ public class QueryRequestBuilder<T extends ApiObject<ID>,ID extends Serializable
         return this;
     }
 
-    public QueryRequestBuilder<T, ID> withSorts(String... sorts)
+    public QueryRequestBuilder<T, ID> addAscendingSort(String field)
     {
-        setParameter("sort",join(sorts));
+        sorts.add(field);
+        return this;
+    }
+
+    public QueryRequestBuilder<T, ID> addDescendingSort(String field)
+    {
+        sorts.add(field + ":desc");
         return this;
     }
 
@@ -91,8 +100,11 @@ public class QueryRequestBuilder<T extends ApiObject<ID>,ID extends Serializable
     @Override
     public Request<T> build()
     {
+        setParameter("sort",join(sorts));
+
         Request<T> request = super.build();
         request.setRequestMethod(RequestMethod.GET);
+
         return request;
     }
 
