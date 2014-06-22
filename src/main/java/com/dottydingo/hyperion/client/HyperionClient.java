@@ -230,6 +230,8 @@ public class HyperionClient
                     resolvedException =
                             new HyperionException(errorResponse.getStatusCode(), errorResponse.getMessage());
                 }
+
+                resolvedException.setErrorDetails(errorResponse.getErrorDetails());
             }
 
             if (resolvedException == null)
