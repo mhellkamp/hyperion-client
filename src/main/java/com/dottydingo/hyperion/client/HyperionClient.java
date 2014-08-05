@@ -168,6 +168,9 @@ public class HyperionClient
             if(connection.getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED && authorizationFactory != null
                     && authorizationFactory.retryOnAuthenticationError())
             {
+                if(authorizationFactory instanceof ResettableAuthorizationFactory)
+                    ((ResettableAuthorizationFactory) authorizationFactory).reset();
+
                 connection.disconnect();
                 connection = client.open(URI.create(buildUrl(request)).toURL());
                 executeRequest(request, connection);
