@@ -43,6 +43,9 @@ public class HyperionClient
     public HyperionClient(String baseUrl)
     {
         this.baseUrl = baseUrl;
+        if (!baseUrl.endsWith("/"))
+            this.baseUrl+="/";
+
         client = new OkHttpClient();
         // do not pool connections
         client.setConnectionPool(new ConnectionPool(0,1000));
@@ -257,7 +260,7 @@ public class HyperionClient
     protected String buildUrl(Request request)
     {
         StringBuilder sb = new StringBuilder(512);
-        sb.append(baseUrl).append("/").append(request.getEntityName()).append("/");
+        sb.append(baseUrl).append(request.getEntityName()).append("/");
         if(request.getPath() != null)
             sb.append(request.getPath());
 
