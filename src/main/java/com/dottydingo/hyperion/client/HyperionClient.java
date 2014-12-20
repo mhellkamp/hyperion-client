@@ -1,9 +1,6 @@
 package com.dottydingo.hyperion.client;
 
-import com.dottydingo.hyperion.api.ApiObject;
-import com.dottydingo.hyperion.api.DeleteResponse;
-import com.dottydingo.hyperion.api.EntityResponse;
-import com.dottydingo.hyperion.api.ErrorResponse;
+import com.dottydingo.hyperion.api.*;
 import com.dottydingo.hyperion.client.event.ClientEvent;
 import com.dottydingo.hyperion.client.event.ClientEventListener;
 import com.dottydingo.hyperion.client.exception.ClientConnectionException;
@@ -221,20 +218,46 @@ public class HyperionClient
             HyperionException resolvedException = null;
             if (errorResponse != null)
             {
-                try
+                String type = errorResponse.getType();
+                String message = errorResponse.getMessage();
+
+                if(type != null && type.trim().length() > 0)
                 {
-                    Class exceptionClass = Class.forName(errorResponse.getType());
-                    resolvedException = (HyperionException) exceptionClass.getConstructor(String.class)
-                            .newInstance(errorResponse.getMessage());
-                }
-                catch (Exception ignore)
-                {
+                    // deal with hyperion 1.0 exceptions
+                    if(type.startsWith("com.dottydingo.hyperion.api.exception"))
+                    {
+                        type = type.replace("com.dottydingo.hyperion.api.exception",
+                                "com.dottydingo.hyperion.exception");
+                        if(errorResponse.getErrorDetails()!= null && errorResponse.getErrorDetails().size() > 0)
+                        {
+                            StringBuilder sb = new StringBuilder(255);
+                            sb.append(message);
+                            for (ErrorDetail errorDetail : errorResponse.getErrorDetails())
+                            {
+                                sb.append("\n");
+                                sb.append(errorDetail.getMessage());
+                            }
+
+                            message = sb.toString();
+                        }
+
+                    }
+
+                    try
+                    {
+                        Class exceptionClass = Class.forName(type);
+                        resolvedException = (HyperionException) exceptionClass.getConstructor(String.class)
+                                .newInstance(message);
+                    }
+                    catch (Exception ignore)
+                    {
+                    }
                 }
 
                 if (resolvedException == null)
                 {
                     resolvedException =
-                            new HyperionException(errorResponse.getStatusCode(), errorResponse.getMessage());
+                            new HyperionException(errorResponse.getStatusCode(), message);
                 }
 
                 resolvedException.setErrorDetails(errorResponse.getErrorDetails());
