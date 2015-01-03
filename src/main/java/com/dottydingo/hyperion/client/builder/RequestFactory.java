@@ -1,6 +1,7 @@
 package com.dottydingo.hyperion.client.builder;
 
 import com.dottydingo.hyperion.api.ApiObject;
+import com.dottydingo.hyperion.client.builder.query.QueryExpression;
 
 import java.io.Serializable;
 
@@ -37,6 +38,12 @@ public class RequestFactory<T extends ApiObject<ID>,ID extends Serializable>
     public QueryRequestBuilder<T,ID> query(String query)
     {
         return new QueryRequestBuilder<T, ID>(version,type,entityName,query);
+    }
+
+    public QueryRequestBuilder<T,ID> query(QueryExpression query)
+    {
+        return new QueryRequestBuilder<T, ID>(version,type,entityName,query.build()
+        );
     }
 
     public QueryRequestBuilder<T,ID> query()
